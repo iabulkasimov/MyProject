@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>This is your Calculation web page!</h1>
+    <h2>Here is your first entered number {{ num1 }}!</h2>
+    <h2>Here is your second entered number {{ num2 }}!</h2>
+    {% for i in for_loop %}
+
+    {% if opt == i and i == '+' %}
+
+    <h1>The total sum of {{ num1 }} {{ opt }} {{ num2 }} = {{ num1 + num2 }}</h1>
+    {% elif opt == i and i == '-' %}
+    <h1>The total sum of {{ num1 }} {{ opt }} {{ num2 }} = {{ num1 - num2 }}</h1>
+    {% elif opt == i and i == '*' %}
+    <h1>The total sum of {{ num1 }} {{ opt }} {{ num2 }} = {{ num1 * num2 }}</h1>
+    {% elif opt == i and i == '÷' %}
+    <h1>End here is a result of {{ num1 }} {{ opt }} {{ num2 }} = {{ num1 / num2 }}</h1>
+
+    {% endif %}
+
+    {% endfor %}
+</body>
+</html>

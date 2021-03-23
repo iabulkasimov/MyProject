@@ -11,11 +11,11 @@ def number(number1, number2, operator):
     # variable1, variable2 = 23, 45
     if operator == '+':
         return render_template('body.html', num1=number1, num2=number2, mult=number1 + number2, opt=operator)
-    if operator == '-':
+    elif operator == '-':
         return render_template('body.html', num1=number1, num2=number2, mult=number1 - number2, opt=operator)
-    if operator == '*':
+    elif operator == '*':
         return render_template('body.html', num1=number1, num2=number2, mult=number1 * number2, opt=operator)
-    if operator == '÷':
+    elif operator == '÷':
         return render_template('body.html', num1=number1, num2=number2, mult=number1 / number2, opt=operator)
 
 if __name__ == '__main__':
