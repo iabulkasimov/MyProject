@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  This template will create Application Load Balancer with ASG using LT.
+#Parameters:
+Resources:
+  CallSecGrp:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enables SSH and HTTP ports #required
+      GroupName: Call ALB Demo
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+  
