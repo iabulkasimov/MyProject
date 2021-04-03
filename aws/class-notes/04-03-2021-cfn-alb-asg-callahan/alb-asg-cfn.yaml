@@ -1,13 +1,20 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: |
-  This template will create Application Load Balancer with ASG using LT.
-#Parameters:
+  This template will create Application Load Balancer with ASG using LT
+
+Parameters:
+  IkbolVPC:
+    Description: VPC Id of your existing account
+    Type: AWS::EC2::VPC::Id
+    Default: 
+
+
 Resources:
   CallSecGrp:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enables SSH and HTTP ports #required
-      GroupName: Call ALB Demo
+      GroupName: Ikbol ALB Demo
       SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 22
@@ -17,4 +24,16 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
+      VpcId: !Ref IkbolVPC
+
+  IkbolALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 25
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 3
+      VpcId: !Ref IkbolVPC
   
