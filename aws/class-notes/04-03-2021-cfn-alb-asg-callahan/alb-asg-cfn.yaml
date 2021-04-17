@@ -3,16 +3,16 @@ Description: |
   This template will create Application Load Balancer with ASG using LT
 
 Parameters:
-  IkbolVPC:
+  CallVPC:
     Description: VPC Id of your existing account
     Type: AWS::EC2::VPC::Id
-  IkbolSubnets:
-    Description: List fo Subnet Ids in YOur VPC. Please select at list 2 of them.
-    Type: List<AWS::EC2::SecurityGroup::Id>
+  CallSubnets:
+    Description: List of Subnet Ids in your VPC. Please select at least 2 of them.
+    Type: List<AWS::EC2::Subnet::Id>
   KeyName:
     Description: Select your key pair from the list
     Type: AWS::EC2::KeyPair::KeyName
-  IkbolInstanceType:
+  CallInstanceType:
     Description: Select the instance type for your web server.
     Type: String
     Default: t2.micro
@@ -36,14 +36,12 @@ Mappings:
     eu-west-1:
       AMI: ami-0ffea00000f287d30
 
-
 Resources:
-  IkbolSecGroupp:
+  CallSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enables SSH and HTTP ports #required
-      GroupName: Ikbol ALB Demo
-      SecurityGroupEgress:
+      SecurityGroupIngress: 
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
@@ -52,9 +50,9 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
-      VpcId: !Ref IkbolVPC
+      VpcId: !Ref CallVPC
 
-  IkbolALBTargetGroup:
+  CallALBTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       HealthCheckIntervalSeconds: 25
@@ -63,26 +61,26 @@ Resources:
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 3
-      VpcId: !Ref IkbolVPC
+      VpcId: !Ref CallVPC
 
-  IkbolApplicationLoadBalancer:
+  CallApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       SecurityGroups:
-        - !Fn::GetAtt IkbolSecGroupp.GroupId
-      Subnets: !Ref IkbolSubnets
+        - !GetAtt CallSecGroup.GroupId
+      Subnets: !Ref CallSubnets
 
-  IkbolALBListener:
+  CallALBListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions: #required
         - Type: forward
-          TargetGroupArn: !Ref IkbolALBTargetGroup
-      LoadBalancerArn: !Ref IkbolApplicationLoadBalancer #required
+          TargetGroupArn: !Ref CallALBTargetGroup
+      LoadBalancerArn: !Ref CallApplicationLoadBalancer #required
       Port: 80
       Protocol: HTTP
 
-  IkbolLaunchTemplate:
+  CallLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties:
       LaunchTemplateData:
@@ -106,7 +104,7 @@ Resources:
                 <title> Congratulations! You have created an instance from Launch Template</title>
             </head>
             <body>
-                <h1>This web server is launched from launch template by Ikbol</h1>
+                <h1>This web server is launched from launch template by YOUR_NAME</h1>
                 <p>This instance is created at <b>$DATE_TIME</b></p>
                 <p>Private IP address of this instance is <b>$PRIVATE_IP</b></p>
                 <p>Public IP address of this instance is <b>$PUBLIC_IP</b></p>
@@ -114,16 +112,16 @@ Resources:
             </html>" > /var/www/html/index.html
             systemctl start httpd
             systemctl enable httpd
-        SecurityGroups:
-          - !Ref IkbolSecGroupp
-        InstanceType: !Ref IkbolInstanceType
+        SecurityGroupIds:
+          - !Ref CallSecGroup
+        InstanceType: !Ref CallInstanceType
   
-  IkbolAutoScalingGroup:
+  CallAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       AvailabilityZones: !GetAZs 
       LaunchTemplate:
-        LaunchTemplateId: !Ref IkbolLaunchTemplate
+        LaunchTemplateId: !Ref CallLaunchTemplate
         Version: '1'
       HealthCheckType: ELB
       HealthCheckGracePeriod: 300
@@ -131,12 +129,12 @@ Resources:
       DesiredCapacity: '2'
       MaxSize: '3'
       TargetGroupARNs:
-        - !Ref IkbolALBTargetGroup
+        - !Ref CallALBTargetGroup
 
-  IkbolCPUPolicy:
+  CallCPUPolicy:
     Type: "AWS::AutoScaling::ScalingPolicy"
     Properties:
-      AutoScalingGroupName: !Ref IkbolAutoScalingGroup
+      AutoScalingGroupName: !Ref CallAutoScalingGroup
       PolicyType: TargetTrackingScaling
       TargetTrackingConfiguration:
         PredefinedMetricSpecification:
@@ -145,9 +143,8 @@ Resources:
 
 Outputs:
   AppURL:
-    Description: URL of Ikbol App
+    Description: URL of Call App
     Value: !Join 
       - ''
       - - 'http://'
-        - !GetAtt IkbolApplicationLoadBalancer.DNSName
-  
+        - !GetAtt CallApplicationLoadBalancer.DNSName
